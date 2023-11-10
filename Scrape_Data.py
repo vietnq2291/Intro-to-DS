@@ -25,25 +25,35 @@ def get_data(url)->list:
             link_element.click()
             WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, "//div[@class='Svr5cf bKhjM']")))
 
-            reviews = driver.find_elements(By.XPATH, ".//div[@class='Svr5cf bKhjM']")
-
             enoughReviews = False
             count = 0
 
             while True:
-                reviews = driver.find_elements(By.XPATH, ".//div[@jsname='Pa5DKe']//div[@class='Svr5cf bKhjM']")
+                reviews = driver.find_elements(By.XPATH, ".//div[@class='Svr5cf bKhjM']")
+                driver.execute_script("window.scrollBy(0, 500);")
 
                 for review in reviews:
                     try:
-                        review_text = review.find_element(By.XPATH, ".//div[@class='OlkcBc']//div[@class='K7oBsc']").text
-                        review_rating = review.find_element(By.XPATH, ".//div[@class='GDWaad']").text
+                        try:
+                            read_more_button = WebDriverWait(review, 2).until(EC.element_to_be_clickable((By.XPATH, ".//div[@class='Svr5cf bKhjM']//span[@class='Jmi7d TJUuge']")))
+                            read_more_button.click()
+                            
+                        except Exception as e:
+                            print("no button (readMore)", e)
+
+                        scroll_next_review = WebDriverWait(review, 1).until(EC.presence_of_element_located((By.XPATH, ".//div[@class='Svr5cf bKhjM']")))
+                        driver.execute_script("arguments[0].scrollIntoView();", scroll_next_review)
+
+
+                        review_text = (WebDriverWait(review, 2).until(EC.presence_of_element_located((By.XPATH, ".//div[@class='Svr5cf bKhjM']//div[@class='K7oBsc']")))).text
+                        review_rating = (WebDriverWait(review, 2).until(EC.presence_of_element_located((By.XPATH, ".//div[@class='GDWaad']")))).text
 
                         row = [hotel_name, review_text, review_rating]
                         data.append(row)
-
-                        ### max 200 reviews for each Hotel
+            
+                        ### max 30 reviews for each Hotel
                         count += 1
-                        if count > 1000:
+                        if count > 30:
                             enoughReviews = True
                             break
     
@@ -54,18 +64,21 @@ def get_data(url)->list:
                     
                 if enoughReviews == True:
                     break
-                # Scrolle to the next elem (jsname='Pa5DKe')
-                try:
-                    js_scroll = "window.scrollBy(0, 4000);"
-                    driver.execute_script(js_scroll)
-                    time.sleep(1)
-                    # I need the upscroll the reload the new 'Pa5DKe' class
-                    driver.execute_script("window.scrollBy(0, -100);")
-                    driver.execute_script("window.scrollBy(0, 4000);")
 
-                except Exception as e:
-                    print("no more target element ", e)
-                    break
+
+                # Scrolle to generate the next (jsname='Pa5DKe') class for 10 more reviews
+
+                # try:
+                    # js_scroll = "window.scrollBy(0, 4000);"
+                    # driver.execute_script(js_scroll)
+                    # time.sleep(1)
+                    # I need the upscroll the reload the new 'Pa5DKe' class
+                    # driver.execute_script("window.scrollBy(0, -100);")
+                    # driver.execute_script("window.scrollBy(0, 200);")
+
+                # except Exception as e:
+                #     print("no more target element ", e)
+                #     break
         
         except Exception as e:
             print("Error: ", e)
