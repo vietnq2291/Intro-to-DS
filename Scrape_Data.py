@@ -18,35 +18,35 @@ def get_data(url)->list:
 
     data = []
     for hotel in hotels:
-        hotel_name = hotel.find_element(By.XPATH, ".//h2[@class='BgYkof ogfYpf ykx2he']").text
+        hotel_name = hotel.find_element(By.CLASS_NAME, "QT7m7").text
 
         try:
             link_element = hotel.find_element(By.XPATH, ".//a[contains(@class, 'spNMC lRagtb')]")
             link_element.click()
-            WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, "//div[@class='Svr5cf bKhjM']")))
 
             enoughReviews = False
             count = 0
 
             while True:
-                reviews = driver.find_elements(By.XPATH, ".//div[@class='Svr5cf bKhjM']")
+                reviews = driver.find_elements(By.CLASS_NAME, "Svr5cf")
                 driver.execute_script("window.scrollBy(0, 500);")
 
                 for review in reviews:
                     try:
-                        try:
-                            read_more_button = WebDriverWait(review, 2).until(EC.element_to_be_clickable((By.XPATH, ".//div[@class='Svr5cf bKhjM']//span[@class='Jmi7d TJUuge']")))
-                            read_more_button.click()
+                        # try to click the buttom to see the whole review after that scroll to the next review
+
+                        # try:
+                        #     read_more_button = WebDriverWait(driver, 2).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "span.Jmi7d.TJUuge")))
+                        #     read_more_button.click()
                             
-                        except Exception as e:
-                            print("no button (readMore)", e)
+                        # except Exception as e:
+                        #     print("no button (readMore)", e)
 
-                        scroll_next_review = WebDriverWait(review, 1).until(EC.presence_of_element_located((By.XPATH, ".//div[@class='Svr5cf bKhjM']")))
-                        driver.execute_script("arguments[0].scrollIntoView();", scroll_next_review)
+                        # scroll_next_review = WebDriverWait(review, 1).until(EC.presence_of_element_located((By.CLASS_NAME, "Jmi7d")))
+                        # driver.execute_script("arguments[0].scrollIntoView();", scroll_next_review)
 
-
-                        review_text = (WebDriverWait(review, 2).until(EC.presence_of_element_located((By.XPATH, ".//div[@class='Svr5cf bKhjM']//div[@class='K7oBsc']")))).text
-                        review_rating = (WebDriverWait(review, 2).until(EC.presence_of_element_located((By.XPATH, ".//div[@class='GDWaad']")))).text
+                        review_text = (WebDriverWait(review, 2).until(EC.presence_of_element_located((By.CSS_SELECTOR, "div.K7oBsc")))).text
+                        review_rating = (WebDriverWait(review, 2).until(EC.presence_of_element_located((By.CLASS_NAME, "GDWaad")))).text
 
                         row = [hotel_name, review_text, review_rating]
                         data.append(row)
