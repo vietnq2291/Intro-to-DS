@@ -1,0 +1,17 @@
+__pycache__
+
+# Editor
+.vscode/
+
+# Virtual environment
+venv/
+
+# Output artifacts
+output/**
+!output/**/.gitkeep
+
+*.csv
+*.txt
+*.png
+
+!requirements.txt
