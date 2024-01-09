@@ -1,6 +1,4 @@
 import argparse
-import csv
-import logging
 import sys
 import time
 import traceback
@@ -42,9 +40,7 @@ def get_hotel_details(hotel_page: Page) -> Hotel:
         popular_amenities_locator = amenities_panel.locator(".RhdAVb").nth(0)
         expect(popular_amenities_locator).to_be_visible(timeout=1000)
         popular_amenities_list = popular_amenities_locator.locator(".LtjZ2d")
-        popular_amenities = [
-            span.inner_text() for span in popular_amenities_list.all()
-        ]
+        popular_amenities = [span.inner_text() for span in popular_amenities_list.all()]
     except AssertionError as e:
         pass
     except TimeoutError as e:
@@ -75,9 +71,7 @@ def get_hotel_details(hotel_page: Page) -> Hotel:
                 category_photos_count_str = category_with_count[
                     open_pos + 1 : close_pos
                 ]
-                photo_count += int(
-                    category_photos_count_str.replace(",", ""), base=10
-                )
+                photo_count += int(category_photos_count_str.replace(",", ""), base=10)
     except AssertionError | TimeoutError as e:
         traceback.print_exc()
         pass
@@ -129,42 +123,15 @@ def main() -> None:
         p.chromium.launch(headless=is_headless, timeout=5000) as browser,
         browser.new_context() as context,
         open(input_filename, "r", encoding="utf-8") as input_file,
-        # open(
-        #     output_filename,
-        #     "w",
-        #     newline="",
-        #     encoding="utf-8",
-        # ) as out_file,
         HotelCsvWriter(output_filename) as writer,
     ):
         hotel_page = context.new_page()
 
-        # writer = csv.writer(out_file, quoting=csv.QUOTE_NONNUMERIC)
-        # writer.writerow(
-        #     [
-        #         "name",
-        #         "address",
-        #         "images_count",
-        #         "popular_amenities",
-        #         "amenities",
-        #         "source",
-        #     ]
-        # )
-
-        for line_number, link in enumerate(input_file):
+        for _, link in enumerate(input_file):
             hotel_page.goto(link)
 
             details = get_hotel_details(hotel_page)
             writer.append(details)
-            # writer.writerow(
-            #     [
-            #         details.name,
-            #         details.address,
-            #         details.images_count,
-            #         details.popular_amenities,
-            #         "Google",
-            #     ]
-            # )
 
 
 if __name__ == "__main__":
